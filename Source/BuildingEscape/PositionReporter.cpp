@@ -22,7 +22,7 @@ void UPositionReporter::BeginPlay()
 
 	// Report the code to the output logger
 	FString ObjectName = GetOwner()->GetName();
-	UE_LOG(LogTemp, Warning, TEXT("Position Reporter on %s reporting for duty, sir!"), *ObjectName);
+	UE_LOG(LogTemp, Log, TEXT("Position Reporter on %s reporting for duty, sir!"), *ObjectName);
 	
 }
 
