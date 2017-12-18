@@ -21,7 +21,17 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	PhysicsHandler = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+
+	if (PhysicsHandler)
+	{
+		// yay
+	}
+	else
+	{
+		// boo
+		UE_LOG(LogTemp, Error, TEXT("%s IS MISSING PHYSICS HANDLE"), *GetOwner()->GetName())
+	}
 	
 }
 
@@ -36,7 +46,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	FRotator PlayerViewPointRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
 	// and log to console
-	UE_LOG(LogTemp, Warning, TEXT("Position: %s || Rotation: %s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("Position: %s || Rotation: %s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
 
 	// do some fancy-ass math to make a debug line git drawn, dog
 	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
@@ -51,5 +61,27 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		0.f,
 		2.f
 	);
+
+	// perform ray cast/line trace
+	FCollisionQueryParams Trace(FName(TEXT("")), false, GetOwner());
+
+	FHitResult Hit;
+	GetWorld()->LineTraceSingleByObjectType(
+		Hit,
+		PlayerViewPointLocation,
+		LineTraceEnd,
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		Trace
+	);
+
+	// store name of object that was hit
+	AActor* ObjectHit = Hit.GetActor();
+
+	// log result to console
+	if (ObjectHit)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("You hit %s"), (*ObjectHit->GetName()));
+	}
+
 }
 
