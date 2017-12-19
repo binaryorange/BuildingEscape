@@ -27,13 +27,30 @@ void UGrabber::BeginPlay()
 void UGrabber::Grab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab was pressed!"))
-	GetPhysicsBodyInReach();
+	
+	// line trace and look for actors in reach of type physics body
+	auto HitResult = GetPhysicsBodyInReach();
+	auto ComponentToGrab = HitResult.GetComponent();
+	auto ActorHit = HitResult.GetActor();
+
+	// do the stuff with physics handler
+	if (ActorHit)
+	{
+		PhysicsHandler->GrabComponent(
+			ComponentToGrab,
+			NAME_None,
+			ComponentToGrab->GetOwner()->GetActorLocation(),
+			false
+		);
+	}
+
 
 }
 
 void UGrabber::Release()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab was released!"))
+		PhysicsHandler->ReleaseComponent();
 }
 
 void UGrabber::FindPhysicsHandler()
@@ -63,7 +80,7 @@ void UGrabber::SetupInput()
 	}
 }
 
-void UGrabber::GetPhysicsBodyInReach() const
+const FHitResult UGrabber::GetPhysicsBodyInReach() 
 {
 	// get player's view point
 	FVector PlayerViewPointLocation;
@@ -72,17 +89,6 @@ void UGrabber::GetPhysicsBodyInReach() const
 
 	// do some fancy-ass math to make a debug line git drawn, dog
 	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
-
-	DrawDebugLine(
-		GetWorld(),
-		PlayerViewPointLocation,
-		LineTraceEnd,
-		FColor(255, 55, 90),
-		false,
-		0.f,
-		0.f,
-		2.f
-	);
 
 	// perform ray cast/line trace
 	FCollisionQueryParams Trace(FName(TEXT("")), false, GetOwner());
@@ -104,11 +110,29 @@ void UGrabber::GetPhysicsBodyInReach() const
 	{
 		UE_LOG(LogTemp, Warning, TEXT("You hit %s"), (*ObjectHit->GetName()));
 	}
+
+	return Hit;
 }
 
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// get player's view point
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewPointLocation, PlayerViewPointRotation);
+
+	// do some fancy-ass math to make a debug line git drawn, dog
+	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+
+	// perform ray cast/line trace
+	FCollisionQueryParams Trace(FName(TEXT("")), false, GetOwner());
+
+	if(PhysicsHandler->GrabbedComponent)
+	{
+		PhysicsHandler->SetTargetLocation(LineTraceEnd);
+	}
 }
 

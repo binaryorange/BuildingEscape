@@ -37,5 +37,5 @@ private:
 	void Release();
 	void FindPhysicsHandler();
 	void SetupInput();
-	void GetPhysicsBodyInReach() const;	
+	const FHitResult GetPhysicsBodyInReach();	
 };
