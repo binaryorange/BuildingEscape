@@ -37,5 +37,7 @@ private:
 	void Release();
 	void FindPhysicsHandler();
 	void SetupInput();
-	const FHitResult GetPhysicsBodyInReach();	
+	const FHitResult GetPhysicsBodyInReach();
+	FVector GetLineTraceStart();
+	FVector GetLineTraceEnd();
 };
