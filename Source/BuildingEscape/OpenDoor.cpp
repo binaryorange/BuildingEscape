@@ -21,7 +21,6 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();	
 
-	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
 	Owner = GetOwner();
 
 	// Get the initial door angle (closed angle)
@@ -45,15 +44,24 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
-	if (PressurePlate->IsOverlappingActor(ActorThatOpens))
+	if (GetTotalMassOfActorsOnPlate() > 50.f) // TODO Create editable value
 	{
 		OpenDoor();
 		DoorLastOpen = GetWorld()->GetTimeSeconds();
 	}
 
 	if ((GetWorld()->GetTimeSeconds() - DoorLastOpen) > DoorOpenDelay)
-	{
+	 {
 		CloseDoor();
 	}
+}
+
+float UOpenDoor::GetTotalMassOfActorsOnPlate()
+{
+	float TotalMass = 0.f;
+	TArray<AActor*> OverlappingActors;
+	PressurePlate->GetOverlappingActors(OverlappingActors); // remember OUT parame
+
+	return TotalMass;
 }
 
