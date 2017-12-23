@@ -35,6 +35,9 @@ private:
 	float DoorOpenDelay = 1.f;
 
 	UPROPERTY(EditAnywhere)
+	float MassThreshold = 1.f;
+
+	UPROPERTY(EditAnywhere)
 	ATriggerVolume* PressurePlate;
 
 	AActor* Owner;

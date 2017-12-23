@@ -3,6 +3,7 @@
 #include "OpenDoor.h"
 #include <Engine/World.h>
 #include "GameFramework/Actor.h"
+#include "Components/PrimitiveComponent.h"
 
 
 // Sets default values for this component's properties
@@ -44,7 +45,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
-	if (GetTotalMassOfActorsOnPlate() > 50.f) // TODO Create editable value
+	if (GetTotalMassOfActorsOnPlate() >= MassThreshold)
 	{
 		OpenDoor();
 		DoorLastOpen = GetWorld()->GetTimeSeconds();
@@ -60,7 +61,13 @@ float UOpenDoor::GetTotalMassOfActorsOnPlate()
 {
 	float TotalMass = 0.f;
 	TArray<AActor*> OverlappingActors;
-	PressurePlate->GetOverlappingActors(OverlappingActors); // remember OUT parame
+	PressurePlate->GetOverlappingActors(OverlappingActors); // remember OUT parameter
+
+	for (const auto* Actor : OverlappingActors)
+	{
+		// add up the masses of the Actors
+		TotalMass += Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	}
 
 	return TotalMass;
 }
