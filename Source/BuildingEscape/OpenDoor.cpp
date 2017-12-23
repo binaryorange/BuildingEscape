@@ -26,6 +26,11 @@ void UOpenDoor::BeginPlay()
 
 	// Get the initial door angle (closed angle)
 	InitialDoorAngle = Owner->GetActorRotation();
+
+	if (!PressurePlate)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Pressure Plate is not assigned on %s!"), *GetOwner()->GetName())
+	}
 }
 
 void UOpenDoor::OpenDoor()
@@ -44,7 +49,6 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 	if (GetTotalMassOfActorsOnPlate() >= MassThreshold)
 	{
 		OpenDoor();
@@ -61,6 +65,8 @@ float UOpenDoor::GetTotalMassOfActorsOnPlate()
 {
 	float TotalMass = 0.f;
 	TArray<AActor*> OverlappingActors;
+
+	if (!PressurePlate) { return TotalMass; }
 	PressurePlate->GetOverlappingActors(OverlappingActors); // remember OUT parameter
 
 	for (const auto* Actor : OverlappingActors)
