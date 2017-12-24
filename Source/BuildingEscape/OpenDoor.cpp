@@ -22,28 +22,11 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();	
 
-	Owner = GetOwner();
-
-	// Get the initial door angle (closed angle)
-	InitialDoorAngle = Owner->GetActorRotation();
-
 	if (!PressurePlate)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Pressure Plate is not assigned on %s!"), *GetOwner()->GetName())
 	}
 }
-
-void UOpenDoor::OpenDoor()
-{
-	OnOpenRequest.Broadcast();
-	//Owner->SetActorRotation(FRotator(0.f, OpenAngle, 0.f));
-}
-
-void UOpenDoor::CloseDoor()
-{
-	Owner->SetActorRotation(FRotator(0.f, InitialDoorAngle.Yaw, 0.f));
-}
-
 
 // Called every frame
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -52,13 +35,11 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 	if (GetTotalMassOfActorsOnPlate() >= MassThreshold)
 	{
-		OpenDoor();
-		DoorLastOpen = GetWorld()->GetTimeSeconds();
+		OnOpenRequest.Broadcast();
 	}
-
-	if ((GetWorld()->GetTimeSeconds() - DoorLastOpen) > DoorOpenDelay)
-	 {
-		CloseDoor();
+	else
+	{
+		OnCloseRequest.Broadcast();
 	}
 }
 
